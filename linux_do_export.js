@@ -53,7 +53,7 @@
         minLen: 0,
         // Obsidian 导出相关
         obsDir: "Linux.do",
-        obsImgMode: "base64",
+        obsImgMode: "file",
         obsImgDir: "Linux.do/attachments",
         obsApiUrl: "https://127.0.0.1:27124",
         obsApiKey: "",
@@ -447,8 +447,8 @@
       <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;">
         <span style="color:#cbd5e1;font-size:12px;white-space:nowrap;">图片模式：</span>
         <select id="ld-obs-img-mode" style="flex:1;background:rgba(15,23,42,0.8);color:#e5e7eb;border:1px solid rgba(148,163,184,0.3);border-radius:8px;padding:6px 10px;font-size:12px;outline:none;">
-          <option value="base64">Base64 内嵌（离线可用）</option>
-          <option value="file">导出图片文件（体积小）</option>
+          <option value="file">保存图片并引用（体积小）</option>
+          <option value="base64">内嵌到笔记（单文件）</option>
         </select>
       </div>
       <div id="ld-obs-img-dir-wrap" style="display:none;margin-bottom:6px;">
