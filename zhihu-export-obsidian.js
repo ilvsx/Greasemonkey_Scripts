@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         知乎回答同步到 Obsidian
+// @name         知乎回答导出到 Obsidian
 // @namespace    http://tampermonkey.net/
 // @version      1.0.0
-// @description  抓取知乎回答内容并同步到 Obsidian
+// @description  抓取知乎回答内容并导出到 Obsidian
 // @author       ilvsx
 // @license      MIT
 // @match        https://www.zhihu.com/question/*

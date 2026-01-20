@@ -7,4 +7,4 @@
 | 脚本 | 说明 | 使用指南 |
 |------|------|----------|
 | [linux_do_export.js](./linux_do_export.js) | Linux.do 帖子导出到 Obsidian | [查看指南](./linux_do_export_guide.md) |
-| [zhihu-export-obsidian.js](./zhihu-export-obsidian.js) | 知乎回答同步到 Obsidian | [查看指南](./zhihu-export-obsidian-guide.md) |
+| [zhihu-export-obsidian.js](./zhihu-export-obsidian.js) | 知乎回答导出到 Obsidian | [查看指南](./zhihu-export-obsidian-guide.md) |
