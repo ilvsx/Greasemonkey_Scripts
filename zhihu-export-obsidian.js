@@ -4,6 +4,7 @@
 // @version      1.0.0
 // @description  抓取知乎回答内容并同步到 Obsidian
 // @author       ilvsx
+// @license      MIT
 // @match        https://www.zhihu.com/question/*
 // @match        https://zhuanlan.zhihu.com/p/*
 // @grant        GM_xmlhttpRequest
