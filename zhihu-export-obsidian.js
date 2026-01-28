@@ -12,6 +12,10 @@
 // @grant        GM_setValue
 // @connect      localhost
 // @connect      127.0.0.1
+// @connect      *.zhimg.com
+// @connect      zhimg.com
+// @connect      *.zhihu.com
+// @connect      zhihu.com
 // ==/UserScript==
 
 (function() {
@@ -1086,12 +1090,18 @@ ${allAnswersContent}
     function htmlToMarkdown(html) {
         const temp = document.createElement('div');
         temp.innerHTML = html;
+
+        // 去除 noscript 避免嵌入的 <img> 文本污染正文
+        temp.querySelectorAll('noscript').forEach(noscript => noscript.remove());
         
         // 处理图片
         const images = temp.querySelectorAll('img');
         const imageMap = [];
         images.forEach((img, index) => {
-            const src = img.getAttribute('data-original') || img.src;
+            const src = img.getAttribute('data-original')
+                || img.getAttribute('data-actualsrc')
+                || img.getAttribute('data-src')
+                || img.src;
             const alt = img.alt || `image-${index}`;
             imageMap.push({ src, alt, index });
             img.replaceWith(`[[IMAGE_PLACEHOLDER_${index}]]`);
