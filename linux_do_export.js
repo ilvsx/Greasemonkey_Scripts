@@ -233,6 +233,105 @@
         const doc = parser.parseFromString(cookedHtml || "", "text/html");
         const root = doc.body;
 
+        function getTableAlign(cell) {
+            const alignAttr = (cell.getAttribute("align") || "").toLowerCase();
+            if (alignAttr === "left" || alignAttr === "center" || alignAttr === "right") return alignAttr;
+            const style = cell.getAttribute("style") || "";
+            const match = style.match(/text-align\s*:\s*(left|center|right)/i);
+            return match ? match[1].toLowerCase() : "";
+        }
+
+        function alignToSeparator(align) {
+            if (align === "left") return ":---";
+            if (align === "center") return ":---:";
+            if (align === "right") return "---:";
+            return "---";
+        }
+
+        function escapeTableCell(text) {
+            return (text || "")
+                .replace(/\r\n/g, "\n")
+                .replace(/\n+/g, "<br>")
+                .replace(/\|/g, "\\|")
+                .replace(/\s+/g, " ")
+                .trim();
+        }
+
+        function tableRowCells(rowEl) {
+            return Array.from(rowEl.children).filter((c) => {
+                const t = c.tagName ? c.tagName.toLowerCase() : "";
+                return t === "td" || t === "th";
+            });
+        }
+
+        function tableToMarkdown(tableEl) {
+            const headRows = Array.from(tableEl.querySelectorAll("thead tr"));
+            const bodyRows = Array.from(tableEl.querySelectorAll("tbody tr"));
+
+            let headerCells = [];
+            let alignments = [];
+            let dataRows = [];
+
+            if (headRows.length) {
+                const firstHead = tableRowCells(headRows[0]);
+                headerCells = firstHead.map((cell) => {
+                    const raw = Array.from(cell.childNodes).map((c) => serialize(c, false)).join("");
+                    return escapeTableCell(raw);
+                });
+                alignments = firstHead.map((cell) => getTableAlign(cell));
+                for (let i = 1; i < headRows.length; i += 1) {
+                    const cells = tableRowCells(headRows[i]).map((cell) => {
+                        const raw = Array.from(cell.childNodes).map((c) => serialize(c, false)).join("");
+                        return escapeTableCell(raw);
+                    });
+                    dataRows.push(cells);
+                }
+            } else {
+                const allRows = bodyRows.length ? bodyRows : Array.from(tableEl.querySelectorAll("tr"));
+                if (!allRows.length) return "";
+                const firstRow = allRows.shift();
+                const firstCells = tableRowCells(firstRow);
+                headerCells = firstCells.map((cell) => {
+                    const raw = Array.from(cell.childNodes).map((c) => serialize(c, false)).join("");
+                    return escapeTableCell(raw);
+                });
+                alignments = firstCells.map((cell) => getTableAlign(cell));
+                dataRows = allRows.map((row) =>
+                    tableRowCells(row).map((cell) => {
+                        const raw = Array.from(cell.childNodes).map((c) => serialize(c, false)).join("");
+                        return escapeTableCell(raw);
+                    })
+                );
+            }
+
+            if (headRows.length) {
+                dataRows = dataRows.concat(
+                    bodyRows.map((row) =>
+                        tableRowCells(row).map((cell) => {
+                            const raw = Array.from(cell.childNodes).map((c) => serialize(c, false)).join("");
+                            return escapeTableCell(raw);
+                        })
+                    )
+                );
+            }
+
+            const allRows = [headerCells, ...dataRows];
+            const colCount = Math.max(0, ...allRows.map((r) => r.length));
+            if (!colCount) return "";
+
+            const padRow = (cells) => {
+                const out = cells.slice(0, colCount);
+                while (out.length < colCount) out.push("");
+                return out;
+            };
+
+            const headerLine = `| ${padRow(headerCells).join(" | ")} |`;
+            const sepLine = `| ${padRow(alignments).map((a) => alignToSeparator(a)).join(" | ")} |`;
+            const bodyLines = dataRows.map((row) => `| ${padRow(row).join(" | ")} |`).join("\n");
+
+            return [headerLine, sepLine, bodyLines].filter(Boolean).join("\n");
+        }
+
         function serialize(node, inPre = false) {
             if (!node) return "";
             if (node.nodeType === Node.TEXT_NODE) return node.nodeValue || "";
@@ -396,6 +495,11 @@
             if (tag === "s" || tag === "del" || tag === "strike") {
                 const inner = Array.from(el.childNodes).map((c) => serialize(c, inPre)).join("");
                 return `~~${inner}~~`;
+            }
+
+            if (tag === "table") {
+                const tableMd = tableToMarkdown(el);
+                return tableMd ? `\n${tableMd}\n\n` : "";
             }
 
             const nextInPre = inPre || tag === "pre";
