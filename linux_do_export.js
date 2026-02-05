@@ -862,7 +862,12 @@
             topicId: String(topicId || ""),
             title: mainData?.title ? String(mainData.title) : document.title,
             category: domCategory,
-            tags: (Array.isArray(mainData?.tags) && mainData.tags.length ? mainData.tags : domTags) || [],
+            tags:
+                (Array.isArray(mainData?.tags) && mainData.tags.length
+                    ? mainData.tags.map((t) =>
+                          typeof t === "object" && t ? t.name || String(t) : String(t)
+                      )
+                    : domTags) || [],
             url: window.location.href,
             opUsername: opUsername || "",
         };
@@ -1130,7 +1135,7 @@
     // Markdown 生成
     // -----------------------
     function escapeYaml(str) {
-        return (str || "").replace(/"/g, '\\"').replace(/\n/g, "\\n");
+        return String(str || "").replace(/"/g, '\\"').replace(/\n/g, "\\n");
     }
 
     function generateObsidianMarkdown(topic, posts, settings, imgMap, filterSummary) {
